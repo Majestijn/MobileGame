@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -10,7 +9,6 @@ public class PlayerController : MonoBehaviour
 
     Vector3 direction;
     Vector3 origin;
-    Rigidbody rigidBody;
 
     [SerializeField] private GameObject walkingPrefab;
     [SerializeField] private GameObject canvas;
@@ -21,7 +19,6 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        rigidBody = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
     }
 
@@ -35,7 +32,6 @@ public class PlayerController : MonoBehaviour
         if (direction.magnitude > 0)
         {
             transform.position = transform.position - direction * moveSpeed * Time.fixedDeltaTime;
-            //rigidBody.MovePosition(transform.position - direction * 5f * Time.fixedDeltaTime);
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(-direction, Vector3.up), Time.fixedDeltaTime * 10f);
         }
     }
