@@ -15,29 +15,33 @@ public class Enemy : MonoBehaviour
 
 
 
-    [SerializeField] private Transform target;
+    private Transform target;
+
+    private Vector3 destination;
 
     void Start()
     {
         health = GetComponent<Health>();
-        //rigidBody = GetComponent<Rigidbody2D>();
+        rigidBody = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        target = GameObject.Find("PlayerBase").transform;
 
         BuildEnemy();
     }
 
     void Update()
     {
-        Debug.Log(Vector2.Distance(transform.position, target.position));
-        if (Vector2.Distance(transform.position, target.position) > 1f)
+        if (Vector2.Distance(transform.position, target.position) > 0.5f)
         {
             Vector2 direction = (target.position - transform.position).normalized;
 
-            //rigidBody.MovePosition(transform.position + direction);
-
-            transform.Translate(direction * moveSpeed * Time.deltaTime);
+            destination = transform.position + destination;
         }
+    }
+
+    void FixedUpdate()
+    {
+        if (destination != Vector3.zero)
+            rigidBody.MovePosition(destination * moveSpeed * Time.fixedDeltaTime);
     }
 
     void BuildEnemy()
@@ -54,5 +58,10 @@ public class Enemy : MonoBehaviour
     public void SetEnemyStatFile(EnemyStats _enemyStats)
     {
         enemyStats = _enemyStats;
+    }
+
+    public void SetEnemyTarget(Transform _target)
+    {
+        target = _target;
     }
 }

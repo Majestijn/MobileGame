@@ -8,6 +8,7 @@ public class EnemySpawner : MonoBehaviour
 
     public GameObject enemyPrefab;
     public Transform spawnpoint;
+    public Transform enemyTarget;
     void Start()
     {
         
@@ -19,6 +20,7 @@ public class EnemySpawner : MonoBehaviour
         {
             GameObject obj = Instantiate(enemyPrefab, spawnpoint.position, Quaternion.identity);
             obj.GetComponent<Enemy>().SetEnemyStatFile(enemyStatFile);
+            obj.GetComponent<Enemy>().SetEnemyTarget(enemyTarget);
         }
     }
 }
