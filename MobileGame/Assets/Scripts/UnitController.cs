@@ -7,13 +7,14 @@ public class UnitController : MonoBehaviour
 
     [SerializeField] private float moveSpeed = 0.5f;
 
+	[SerializeField] private GameObject enemy;
+	[SerializeField] private GameObject bulletPrefab;
+
     Vector3 direction;
     Vector3 origin;
 
-    [SerializeField] private GameObject walkingPrefab;
-    [SerializeField] private GameObject canvas;
-
-    GameObject joystickObject;
+	bool isMoving = false;
+	float attackcooldownTimer;
 
     Animator animator;
 
@@ -26,16 +27,21 @@ public class UnitController : MonoBehaviour
 
     void Update()
     {
-        CheckForMouseInput();
-    }
+		if (!isMoving)
+		{
+			if (attackcooldownTimer <= 0)
+			{
+				Debug.Log("AttackNow");
+				GameObject obj = Instantiate(bulletPrefab, transform.position + transform.forward, Quaternion.identity);
+				obj.GetComponent<Bullet>().SetTarget(enemy.transform);
 
-    void FixedUpdate()
-    {
-        //if (direction.magnitude > 0)
-        //{
-        //    transform.position = transform.position - direction * moveSpeed * Time.fixedDeltaTime;
-        //    transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(-direction, Vector3.up), Time.fixedDeltaTime * 10f);
-        //}
+				attackcooldownTimer = 0.5f;
+			}
+
+			attackcooldownTimer -= Time.deltaTime;
+		}
+
+        CheckForMouseInput();
     }
 
     void CheckForMouseInput()
@@ -46,19 +52,8 @@ public class UnitController : MonoBehaviour
             dashRoutine = null;
             origin = Input.mousePosition;
 
-            GameObject obj = Instantiate(walkingPrefab, origin, Quaternion.identity, canvas.GetComponent<RectTransform>());
-            joystickObject = obj;
-
             animator.SetBool("isRunning", true);
         }
-
-        //if (Input.GetMouseButton(0))
-        //{
-        //    direction = origin - Input.mousePosition;
-        //    direction.z = direction.y;
-        //    direction.y = 0f;
-        //    direction.Normalize();
-        //}
 
         if (Input.GetMouseButtonUp(0))
         {
@@ -76,12 +71,12 @@ public class UnitController : MonoBehaviour
             }
 
             animator.SetBool("isRunning", false);
-            Destroy(joystickObject);
         }
     }
 
     IEnumerator DashRoutine(Vector3 targetPos, float time)
     {
+		isMoving = true;
         float elapsedTime = 0f;
         Vector3 startPos = transform.position;
         Quaternion startRot = transform.rotation;
@@ -93,5 +88,8 @@ public class UnitController : MonoBehaviour
             elapsedTime += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
+
+		attackcooldownTimer = 1f;
+		isMoving = false;
     }
 }
