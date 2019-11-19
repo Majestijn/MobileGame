@@ -32,6 +32,7 @@ public class Enemy : MonoBehaviour
         {
             Vector3 direction = (target.position - transform.position).normalized;
 
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(target.position - transform.position, Vector3.up), Time.deltaTime * 10f);
             transform.Translate(direction * moveSpeed * Time.deltaTime, Space.World);
 
             destination = transform.position + destination;
