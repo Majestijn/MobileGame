@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    [SerializeField] private EnemyStats enemyStats;
+    public delegate void ThisEnemyDiedDelegate(Enemy enemy);
+    public event ThisEnemyDiedDelegate OnThisEnemyDied;
 
-    private SpriteRenderer spriteRenderer;
-    private Rigidbody2D rigidBody;
+    [SerializeField] private EnemyStats enemyStats;
 
     private Health health;
     private short attackDamage;
@@ -15,39 +15,31 @@ public class Enemy : MonoBehaviour
 
 
 
-    private Transform target;
+    public Transform target;
 
     private Vector3 destination;
 
     void Start()
     {
         health = GetComponent<Health>();
-        rigidBody = GetComponent<Rigidbody2D>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
 
         BuildEnemy();
     }
 
     void Update()
     {
-        if (Vector2.Distance(transform.position, target.position) > 0.5f)
+        if (Vector3.Distance(transform.position, target.position) > 0.5f)
         {
-            Vector2 direction = (target.position - transform.position).normalized;
+            Vector3 direction = (target.position - transform.position).normalized;
+
+            transform.Translate(direction * moveSpeed * Time.deltaTime, Space.World);
 
             destination = transform.position + destination;
         }
     }
 
-    void FixedUpdate()
-    {
-        if (destination != Vector3.zero)
-            rigidBody.MovePosition(destination * moveSpeed * Time.fixedDeltaTime);
-    }
-
     void BuildEnemy()
     {
-        spriteRenderer.sprite = enemyStats.EnemyImage;
-
         health.SetHealth(enemyStats.Health);
 
         attackDamage = enemyStats.AttackDamage;
@@ -63,5 +55,10 @@ public class Enemy : MonoBehaviour
     public void SetEnemyTarget(Transform _target)
     {
         target = _target;
+    }
+
+    public void InvokeOnDiedEvent()
+    {
+        OnThisEnemyDied?.Invoke(this);
     }
 }

@@ -7,8 +7,10 @@ public class UnitController : MonoBehaviour
 
     [SerializeField] private float moveSpeed = 0.5f;
 
-	[SerializeField] private GameObject enemy;
+    private Enemy currentTarget;
+
 	[SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private Transform firePoint;
 
     Vector3 direction;
     Vector3 origin;
@@ -22,26 +24,36 @@ public class UnitController : MonoBehaviour
 
     void Start()
     {
+        EnemySpawner.instance.OnEnemyDied += CheckForNewEnemy;
         animator = GetComponent<Animator>();
+        currentTarget = EnemySpawner.instance.GetClosestEnemy(transform);
     }
 
     void Update()
     {
 		if (!isMoving)
 		{
-			if (attackcooldownTimer <= 0)
+			if (attackcooldownTimer <= 0 && currentTarget != null)
 			{
-				Debug.Log("AttackNow");
-				GameObject obj = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-				obj.GetComponent<Bullet>().SetTarget(enemy.transform);
+				GameObject obj = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
+				obj.GetComponent<Bullet>().SetTarget(currentTarget.transform);
+                transform.rotation = Quaternion.LookRotation(currentTarget.transform.position - transform.position, Vector3.up);
 
-				attackcooldownTimer = 0.5f;
+                attackcooldownTimer = 0.5f;
 			}
 
 			attackcooldownTimer -= Time.deltaTime;
 		}
 
         CheckForMouseInput();
+    }
+
+    public void CheckForNewEnemy(Enemy enemy)
+    {
+        if (enemy == currentTarget)
+        {
+            currentTarget = EnemySpawner.instance.GetClosestEnemy(transform);
+        }
     }
 
     void CheckForMouseInput()
@@ -57,18 +69,23 @@ public class UnitController : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
+            currentTarget =  EnemySpawner.instance.GetClosestEnemy(transform);
+
             direction = origin - Input.mousePosition;
             direction.z = direction.y;
             direction.y = 0f;
             direction.Normalize();
             direction *= moveSpeed;
 
-            Vector3 targetPosition = transform.position - direction;
+            transform.position -= direction;
+            transform.rotation = Quaternion.LookRotation(-direction, Vector3.up);
 
-            if (dashRoutine == null)
-            {
-                dashRoutine = StartCoroutine(DashRoutine(targetPosition, 0.1f));
-            }
+            //Vector3 targetPosition = transform.position - direction;
+
+            //if (dashRoutine == null)
+            //{
+            //    dashRoutine = StartCoroutine(DashRoutine(targetPosition, 0.1f));
+            //}
 
             animator.SetBool("isRunning", false);
         }

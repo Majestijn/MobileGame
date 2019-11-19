@@ -27,6 +27,8 @@ public class Health : MonoBehaviour
 
     public void Die()
     {
+        if (GetComponent<Enemy>() != null)
+            GetComponent<Enemy>().InvokeOnDiedEvent();
         Destroy(gameObject);
     }
 }
