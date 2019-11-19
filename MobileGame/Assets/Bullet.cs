@@ -8,12 +8,13 @@ public class Bullet : MonoBehaviour
 
     void Update()
     {
-        transform.Translate(transform.forward * bulletSpeed * Time.deltaTime);
+        transform.Translate(transform.forward * bulletSpeed * Time.deltaTime, Space.World);
     }
 
 	public void SetTarget(Transform target)
 	{
-		transform.LookAt(target);
+		Quaternion lookRotation = Quaternion.LookRotation(target.position - transform.position, Vector3.up);
+        transform.rotation = lookRotation;
 	}
 
 	private void OnTriggerEnter(Collider collision)

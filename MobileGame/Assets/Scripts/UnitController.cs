@@ -32,7 +32,7 @@ public class UnitController : MonoBehaviour
 			if (attackcooldownTimer <= 0)
 			{
 				Debug.Log("AttackNow");
-				GameObject obj = Instantiate(bulletPrefab, transform.position + transform.forward, Quaternion.identity);
+				GameObject obj = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
 				obj.GetComponent<Bullet>().SetTarget(enemy.transform);
 
 				attackcooldownTimer = 0.5f;
